@@ -44,7 +44,7 @@ module Sdbus
 
       reply = native_property_get(descriptor)
 
-      reply.read_string
+      reply[0]
     end
 
     def set(prop, value)
@@ -52,9 +52,7 @@ module Sdbus
       descriptor = @properties[prop] || @properties[titlecase(prop)]
       raise ArgumentError unless descriptor[:access] =~ /write/
 
-      reply = native_property_set(descriptor, value)
-
-      reply.read_string
+      native_property_set(descriptor, value)
     end
 
     def call(method, *args)
@@ -84,7 +82,7 @@ module Sdbus
 
       raise BaseError.new(rc) if rc < 0
 
-      Message.new(reply.read_pointer)
+      nil
     end
 
 
@@ -105,7 +103,7 @@ module Sdbus
 
       raise BaseError.new(rc) if rc < 0
 
-      Message.new(reply.read_pointer)
+      Message.new(reply.read_pointer, descriptor[:type])
     end
 
     def native_call(descriptor, args)
@@ -133,8 +131,7 @@ module Sdbus
         raise BaseError.new(rc)
       end
 
-      Message.new(reply.read_pointer)
-
+      Message.new(reply.read_pointer, descriptor[:sig][:out])
     end
 
     def serialize_args(args, descriptor)

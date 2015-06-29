@@ -11,32 +11,6 @@ module Sdbus
       Service.new(self, service)
     end
 
-    def call(service, object, iface, member, *params)
-      types = type_string(params)
-      err   = FFI::MemoryPointer.new(:uint8, Native::BusError.size)
-      reply = FFI::MemoryPointer.new(:pointer)
-      puts "call #{service} #{object} #{iface} #{member} with #{params.inspect}"
-      rc = Native.sd_bus_call_method(
-        @ptr,
-        service,
-        object,
-        iface,
-        member,
-        err,
-        reply,
-        types,
-        *build_varargs(params)
-      )
-
-      if rc < 0
-        e = Native::BusError.new(err)
-        puts e[:message]
-        raise BaseError.new(rc)
-      end
-
-      Message.new(reply.read_pointer)
-    end
-
     def self.finalize(ptr)
       proc { Native.sd_bus_unref(ptr) }
     end

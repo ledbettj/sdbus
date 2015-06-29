@@ -1,5 +1,5 @@
 require 'sdbus/version'
-require 'sdbus/types'
+require 'sdbus/type_parser'
 require 'sdbus/native'
 require 'sdbus/error'
 require 'sdbus/bus'

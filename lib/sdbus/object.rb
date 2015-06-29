@@ -14,6 +14,14 @@ module Sdbus
       @ifaces ||= introspect!
     end
 
+    def properties
+      interfaces.flap_map(&:properties)
+    end
+
+    def bus_methods
+      interfaces.flat_map(&:bus_methods)
+    end
+
     def [](property_name)
       iface = interfaces.find{ |i| i.property?(property_name) }
       raise ArgumentError if iface.nil?
@@ -57,8 +65,8 @@ module Sdbus
         raise BaseError.new(rc)
       end
 
-      msg = Message.new(reply.read_pointer)
-      parse_introspect(msg.read_string)
+      msg = Message.new(reply.read_pointer, 's')
+      parse_introspect(msg[0])
     end
 
     def collect_args(method)
