@@ -15,7 +15,7 @@ module Sdbus
     end
 
     def properties
-      interfaces.flap_map(&:properties)
+      interfaces.flat_map(&:properties)
     end
 
     def bus_methods
@@ -65,7 +65,7 @@ module Sdbus
         raise BaseError.new(rc)
       end
 
-      msg = Message.new(reply.read_pointer, 's')
+      msg = Message.new(reply.read_pointer, 's', self)
       parse_introspect(msg[0])
     end
 

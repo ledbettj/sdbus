@@ -103,7 +103,7 @@ module Sdbus
 
       raise BaseError.new(rc) if rc < 0
 
-      Message.new(reply.read_pointer, descriptor[:type])
+      Message.new(reply.read_pointer, descriptor[:type], self.object)
     end
 
     def native_call(descriptor, args)
@@ -131,7 +131,7 @@ module Sdbus
         raise BaseError.new(rc)
       end
 
-      Message.new(reply.read_pointer, descriptor[:sig][:out])
+      Message.new(reply.read_pointer, descriptor[:sig][:out], self.object)
     end
 
     def serialize_args(args, descriptor)
