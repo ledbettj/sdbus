@@ -95,11 +95,12 @@ module Sdbus
 
       loop do
         Native.sd_bus_message_enter_container(@ptr, :sd_bus_type_dict_entry, t[:contains])
-        k = read_type(t[:key])
-        Native.sd_bus_message_exit_container(@ptr) and break if k.nil?
-        v = read_type(t[:value])
-        result[k] = v
+        if (k = read_type(t[:key]))
+          v = read_type(t[:value])
+          result[k] = v
+        end
         Native.sd_bus_message_exit_container(@ptr)
+        break if k.nil?
       end
 
       Native.sd_bus_message_exit_container(@ptr)

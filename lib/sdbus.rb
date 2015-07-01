@@ -14,12 +14,14 @@ module Sdbus
     rc = Native.sd_bus_default_system(ptr)
     raise BaseError.new(rc) if rc < 0
 
-    Bus.new(ptr.read_pointer)
+    Bus.new(ptr.read_pointer, :system)
   end
 
+  def self.session_bus
+    ptr = FFI::MemoryPointer.new(:pointer)
+    rc = Native.sd_bus_default_user(ptr)
+    raise BaseError.new(rc) if rc < 0
 
-  def self.unref(ptr)
-    Native.sd_bus_unref(ptr)
+    Bus.new(ptr.read_pointer, :session)
   end
-
 end

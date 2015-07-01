@@ -32,6 +32,7 @@ module Sdbus
     ]
 
     attach_function :sd_bus_default_system, [:pointer], :int
+    attach_function :sd_bus_default_user,   [:pointer], :int
 
     attach_function :sd_bus_call_method, [
       :pointer, # bus
