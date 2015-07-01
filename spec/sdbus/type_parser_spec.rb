@@ -42,6 +42,7 @@ describe Sdbus::TypeParser do
     expect(parsed.length).to        eq(1)
     expect(type[:values].length).to eq(4)
 
+    expect(type[:type]).to     eq(:struct)
     expect(type[:contains]).to eq('siib')
     expect(type[:ident]).to    eq('(siib)')
 
