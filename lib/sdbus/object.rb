@@ -11,7 +11,10 @@ module Sdbus
     end
 
     def interfaces
-      @ifaces ||= introspect!
+      @ifaces ||= begin
+                    xml = introspect!
+                    parse_interfaces(xml)
+                  end
     end
 
     def properties
@@ -42,7 +45,10 @@ module Sdbus
       iface.call(method, *args)
     end
 
-    private
+    def children
+      xml = introspect!
+      parse_children(xml)
+    end
 
     def introspect!
       err   = FFI::MemoryPointer.new(:uint8, Native::BusError.size)
@@ -66,7 +72,7 @@ module Sdbus
       end
 
       msg = Message.new(reply.read_pointer, 's', self)
-      parse_introspect(msg[0])
+      REXML::Document.new(msg[0])
     end
 
     def collect_args(method)
@@ -87,8 +93,18 @@ module Sdbus
       args
     end
 
-    def parse_introspect(body)
-      doc = REXML::Document.new(body)
+    def parse_children(doc)
+      children = []
+      doc.root.elements.each('node') do |node|
+        prefix = self.path == '/' ? '' : self.path
+        child = Sdbus::Object.new(self.service, [prefix, node.attributes['name']].join('/'))
+        children.push(child)
+        children += child.children
+      end
+      children
+    end
+
+    def parse_interfaces(doc)
       ifaces = []
 
       doc.root.elements.each('interface') do |e|

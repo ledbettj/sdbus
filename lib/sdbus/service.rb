@@ -13,5 +13,10 @@ module Sdbus
     def object(obj)
       Sdbus::Object.new(self, obj)
     end
+
+    def objects
+      root = self.object('/')
+      [root, *root.children]
+    end
   end
 end
