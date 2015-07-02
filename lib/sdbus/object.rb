@@ -71,8 +71,8 @@ module Sdbus
         raise BaseError.new(rc)
       end
 
-      msg = Message.new(reply.read_pointer, 's', self)
-      REXML::Document.new(msg[0])
+      r = Reply.new(self, reply.read_pointer, 's')
+      REXML::Document.new(r[0])
     end
 
     def collect_args(method)

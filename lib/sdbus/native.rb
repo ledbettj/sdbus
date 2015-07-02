@@ -70,7 +70,18 @@ module Sdbus
       :string   # signature
     ], :int
 
+    attach_function :sd_bus_message_new_method_call, [:pointer, :pointer, :string, :string, :string, :string], :int
+
+    attach_function :sd_bus_call, [:pointer, :pointer, :uint64, :pointer, :pointer], :int
+
+
+    attach_function :sd_bus_message_append_basic, [:pointer, :char, :pointer], :int
+
+    attach_function :sd_bus_message_open_container, [:pointer, :sd_bus_type, :string], :int
+    attach_function :sd_bus_message_close_container, [:pointer], :int
+
     attach_function :sd_bus_message_read_basic, [:pointer, :char, :pointer], :int
+
     attach_function :sd_bus_message_enter_container, [:pointer, :sd_bus_type, :string], :int
     attach_function :sd_bus_message_exit_container, [:pointer], :int
 
