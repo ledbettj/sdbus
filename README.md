@@ -2,6 +2,8 @@
 
 Sdbus is a set of ruby bindings for the `sd-bus` DBus/kdbus library.
 
+__Sdbus is currently under active development and not ready for general use.__
+
 ## Installation
 
 Add this line to your application's Gemfile:
