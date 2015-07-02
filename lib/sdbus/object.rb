@@ -26,21 +26,21 @@ module Sdbus
     end
 
     def [](property_name)
-      iface = interfaces.find{ |i| i.property?(property_name) }
+      iface = interfaces.find { |i| i.property?(property_name) }
       raise ArgumentError if iface.nil?
 
       iface.get(property_name)
     end
 
     def []=(property_name, value)
-      iface = interfaces.find{ |i| i.property?(property_name) }
+      iface = interfaces.find { |i| i.property?(property_name) }
       raise ArgumentError if iface.nil?
 
       iface.set(property_name, value)
     end
 
     def call(method, *args)
-      iface = interfaces.find{ |i| i.bus_method?(method) }
+      iface = interfaces.find { |i| i.bus_method?(method) }
       raise ArgumentError if iface.nil?
       iface.call(method, *args)
     end
@@ -57,7 +57,7 @@ module Sdbus
       rc = Native.sd_bus_call_method(
         service.bus.ptr,
         service.path,
-        self.path,
+        path,
         'org.freedesktop.DBus.Introspectable',
         'Introspect',
         err,
@@ -68,15 +68,14 @@ module Sdbus
       if rc < 0
         e = Native::BusError.new(err)
         puts e[:message]
-        raise BaseError.new(rc)
+        raise BaseError, rc
       end
 
-      r = Reply.new(self, reply.read_pointer, 's')
-      REXML::Document.new(r[0])
+      REXML::Document.new(Reply.new(self, reply.read_pointer, 's')[0])
     end
 
     def collect_args(method)
-      args = {in: [], out: []}
+      args = { in: [], out: [] }
 
       method.elements.each('arg') do |a|
         args[a.attributes['direction'].to_sym].push(
@@ -86,8 +85,8 @@ module Sdbus
       end
 
       args[:sig] = {
-        in:  args[:in].map{ |e| e[:type] }.join(''),
-        out: args[:out].map{ |e| e[:type] }.join('')
+        in:  args[:in].map { |e| e[:type] }.join(''),
+        out: args[:out].map { |e| e[:type] }.join('')
       }
 
       args
@@ -95,12 +94,18 @@ module Sdbus
 
     def parse_children(doc)
       children = []
+      prefix = path == '/' ? '' : path
+
       doc.root.elements.each('node') do |node|
-        prefix = self.path == '/' ? '' : self.path
-        child = Sdbus::Object.new(self.service, [prefix, node.attributes['name']].join('/'))
+        child = Sdbus::Object.new(
+          service,
+          [prefix, node.attributes['name']].join('/')
+        )
+
         children.push(child)
         children += child.children
       end
+
       children
     end
 

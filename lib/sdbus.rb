@@ -10,19 +10,29 @@ require 'sdbus/object'
 require 'sdbus/interface'
 
 module Sdbus
-  def self.system_bus
-    ptr = FFI::MemoryPointer.new(:pointer)
-    rc = Native.sd_bus_default_system(ptr)
-    raise BaseError.new(rc) if rc < 0
+  class << self
+    # Returns a new instance of a {Sdbus::Bus} bound to the system bus.
+    # @return [Sdbus::Bus]
+    def system_bus
+      bus(:system)
+    end
 
-    Bus.new(ptr.read_pointer, :system)
-  end
+    # Returns a new instance of a {Sdbus::Bus} bound to the user (session) bus.
+    # @return [Sdbus::Bus]
+    def user_bus
+      bus(:user)
+    end
 
-  def self.session_bus
-    ptr = FFI::MemoryPointer.new(:pointer)
-    rc = Native.sd_bus_default_user(ptr)
-    raise BaseError.new(rc) if rc < 0
+    alias_method :session_bus, :user_bus
 
-    Bus.new(ptr.read_pointer, :session)
+    # @private
+    def bus(type)
+      ptr = FFI::MemoryPointer.new(:pointer)
+      rc  = Native.send("sd_bus_default_#{type}", ptr)
+
+      raise BaseError, rc if rc < 0
+
+      Bus.new(ptr.read_pointer, type)
+    end
   end
 end

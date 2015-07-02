@@ -4,12 +4,19 @@ SignalException:
 RaiseArgs:
   Enabled: true
 
+SingleSpaceBeforeFirstArg:
+  Enabled: false
+
 SpaceInsideBlockBraces:
   Enabled: true
+
 SpaceBeforeBlockBraces:
   Enabled: true
 
 Lambda:
+  Enabled: false
+
+LambdaCall:
   Enabled: false
 
 Documentation:

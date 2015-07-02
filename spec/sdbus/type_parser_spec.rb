@@ -7,9 +7,9 @@ describe Sdbus::TypeParser do
     parsed = parse.('s')
     type   = parsed.first
 
-    expect(parsed.length).to  eq(1)
-    expect(type[:type]).to    eq(:simple)
-    expect(type[:ident]).to   eq('s')
+    expect(parsed.length).to eq(1)
+    expect(type[:type]).to   eq(:simple)
+    expect(type[:ident]).to  eq('s')
   end
 
   it 'parses variant types correctly' do

@@ -45,8 +45,13 @@ module Sdbus
     end
 
     def read_struct(t)
-      rc = Native.sd_bus_message_enter_container(@ptr, :sd_bus_type_struct, t[:contains])
-      raise BaseError.new(rc) if rc < 0
+      rc = Native.sd_bus_message_enter_container(
+        @ptr,
+        :sd_bus_type_struct,
+        t[:contains]
+      )
+
+      raise BaseError, rc if rc < 0
 
       results = []
 
@@ -62,20 +67,31 @@ module Sdbus
     end
 
     def read_variant
-      rc = Native.sd_bus_message_enter_container(@ptr, :sd_bus_type_variant, nil)
-      raise BaseError.new(rc) if rc < 0
+      rc = Native.sd_bus_message_enter_container(
+        @ptr,
+        :sd_bus_type_variant,
+        nil
+      )
+
+      raise BaseError, rc if rc < 0
 
       str_ptr = FFI::MemoryPointer.new(:pointer)
       type = FFI::MemoryPointer.new(:sd_bus_type)
       rc = Native.sd_bus_message_peek_type(@ptr, type, str_ptr)
-      raise BaseError.new(rc) if rc < 0
+      raise BaseError, rc if rc < 0
+
       puts type.read_string, str_ptr.read_pointer.read_string
       Native.sd_bus_message_exit_container(@ptr)
     end
 
     def read_array(t)
-      rc = Native.sd_bus_message_enter_container(@ptr, :sd_bus_type_array, t[:contains])
-      raise BaseError.new(rc) if rc < 0
+      rc = Native.sd_bus_message_enter_container(
+        @ptr,
+        :sd_bus_type_array,
+        t[:contains]
+      )
+
+      raise BaseError, rc if rc < 0
       result = []
 
       loop do
@@ -89,12 +105,22 @@ module Sdbus
     end
 
     def read_dict(t)
-      rc = Native.sd_bus_message_enter_container(@ptr, :sd_bus_type_array, "{#{t[:contains]}}")
-      raise BaseError.new(rc) if rc < 0
+      rc = Native.sd_bus_message_enter_container(
+        @ptr,
+        :sd_bus_type_array,
+        "{#{t[:contains]}}"
+      )
+      raise BaseError, rc if rc < 0
       result = {}
 
       loop do
-        Native.sd_bus_message_enter_container(@ptr, :sd_bus_type_dict_entry, t[:contains])
+        rc = Native.sd_bus_message_enter_container(
+          @ptr,
+          :sd_bus_type_dict_entry,
+          t[:contains]
+        )
+        raise BaseError, rc if rc < 0
+
         if (k = read_type(t[:key]))
           v = read_type(t[:value])
           result[k] = v
@@ -114,7 +140,7 @@ module Sdbus
       rc = Native.sd_bus_message_read_basic(@ptr, ch.ord, p)
       return nil if rc.zero?
 
-      raise BaseError.new(rc) if rc < 0
+      raise BaseError, rc if rc < 0
 
       case ch
       when 'y' then p.read_uint8
@@ -129,16 +155,15 @@ module Sdbus
       when 's', 'g'
         p.read_pointer.read_string
       when 'o'
-        Sdbus::Object.new(self.object.service, p.read_pointer.read_string)
-#      when 'h'
+        Sdbus::Object.new(object.service, p.read_pointer.read_string)
+        #      when 'h'
       else
         raise ArgumentError, "Don't know how to unmarshal #{ch}"
       end
     end
 
     def self.finalize(ptr)
-      proc { Native.sd_bus_message_unref(ptr) }
+      -> { Native.sd_bus_message_unref(ptr) }
     end
-
   end
 end
