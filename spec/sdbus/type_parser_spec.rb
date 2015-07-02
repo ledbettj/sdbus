@@ -12,6 +12,15 @@ describe Sdbus::TypeParser do
     expect(type[:ident]).to   eq('s')
   end
 
+  it 'parses variant types correctly' do
+    parsed = parse.('v')
+    type   = parsed.first
+
+    expect(parsed.length).to eq(1)
+    expect(type[:type]).to   eq(:variant)
+    expect(type[:ident]).to  eq('v')
+  end
+
   it 'parses array types correctly' do
     parsed = parse.('ai')
     type   = parsed.first
