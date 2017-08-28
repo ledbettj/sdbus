@@ -61,8 +61,22 @@ module Sdbus
       when :array   then serialize_array(t, value)
       when :dict    then serialize_dict(t, value)
       when :struct  then serialize_struct(t, value)
-#      when :variant then
+      when :variant then serialize_variant(t, value)
       end
+    end
+
+    def serialize_variant(t, value)
+      real_type, code = case
+                        when value.is_a?(String) then ['s', :string]
+                        when value.is_a?(TrueClass) || value.is_a?(FalseClass) then ['b', :int]
+                        else raise ArgumentError
+                        end
+
+      value = 1 if value.is_a?(TrueClass)
+      value = 0 if value.is_a?(FalseClass)
+
+      rc = Native.sd_bus_message_append(@ptr, "v", :string, real_type, code, value)
+      raise BaseError, rc if rc < 0
     end
 
     def serialize_array(t, value)

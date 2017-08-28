@@ -76,6 +76,7 @@ module Sdbus
 
 
     attach_function :sd_bus_message_append_basic, [:pointer, :char, :pointer], :int
+    attach_function :sd_bus_message_append, [:pointer, :string, :varargs], :int
 
     attach_function :sd_bus_message_open_container, [:pointer, :sd_bus_type, :string], :int
     attach_function :sd_bus_message_close_container, [:pointer], :int
